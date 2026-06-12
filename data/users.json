@@ -1,0 +1,86 @@
+[
+  {
+    "username": "admin",
+    "password": "admin123",
+    "name": "Amministratore",
+    "role": "admin"
+  },
+  {
+    "username": "michele.antonelli",
+    "password": "prova123",
+    "name": "Michele Antonelli",
+    "role": "user"
+  },
+  {
+    "username": "umberto.verdari",
+    "password": "prova123",
+    "name": "Umberto Verdari",
+    "role": "user"
+  },
+  {
+    "username": "nicola.rossi",
+    "password": "prova123",
+    "name": "Nicola Rossi",
+    "role": "user"
+  },
+  {
+    "username": "davide.tiraboschi",
+    "password": "prova123",
+    "name": "Davide Tiraboschi",
+    "role": "user"
+  },
+  {
+    "username": "emanuele.canteri",
+    "password": "prova123",
+    "name": "Emanuele Canteri",
+    "role": "user"
+  },
+  {
+    "username": "giuseppe.defrancesco",
+    "password": "prova123",
+    "name": "Giuseppe de Francesco",
+    "role": "user"
+  },
+  {
+    "username": "lorenzo.giannotti",
+    "password": "prova123",
+    "name": "Lorenzo Giannotti",
+    "role": "user"
+  },
+  {
+    "username": "lorenzo1",
+    "password": "prova123",
+    "name": "Lorenzo 1",
+    "role": "user"
+  },
+  {
+    "username": "riccardo.aiello",
+    "password": "prova123",
+    "name": "Riccardo Aiello",
+    "role": "user"
+  },
+  {
+    "username": "riccardo.giannelli",
+    "password": "prova123",
+    "name": "Riccardo Giannelli",
+    "role": "user"
+  },
+  {
+    "username": "angel.toninelli",
+    "password": "prova123",
+    "name": "Angel Toninelli",
+    "role": "user"
+  },
+  {
+    "username": "pietro.dalla",
+    "password": "prova123",
+    "name": "Pietro Dalla",
+    "role": "user"
+  },
+  {
+    "username": "leonardo.aganetti",
+    "password": "prova123",
+    "name": "Leonardo Aganetti",
+    "role": "user"
+  }
+]

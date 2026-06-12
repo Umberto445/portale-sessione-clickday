@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Portale Sessione Click Day</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="system-label">Area esercitazioni</p>
+        <h1 id="pageTitle">Convalida e invio della prova</h1>
+      </div>
+      <button id="logoutButton" class="link-button hidden" type="button">Esci</button>
+    </header>
+
+    <main class="page">
+      <section id="loginView" class="panel auth-panel">
+        <h2>Accesso utenti</h2>
+        <p>Inserisci le credenziali per entrare nel sistema.</p>
+        <form id="loginForm" class="form-stack">
+          <label>
+            Utente
+            <input id="username" type="text" autocomplete="username" required />
+          </label>
+          <label>
+            Password
+            <input id="password" type="password" autocomplete="current-password" required />
+          </label>
+          <button class="primary-button" type="submit">Accedi</button>
+          <p id="loginError" class="error-text hidden">Credenziali non valide.</p>
+        </form>
+      </section>
+
+      <section id="dashboardView" class="hidden">
+        <div class="dashboard-head">
+          <div>
+            <p class="system-label">Prova generale</p>
+            <h2 id="welcomeTitle">Seleziona quiz</h2>
+          </div>
+          <p id="userStats" class="small-muted"></p>
+        </div>
+
+        <div id="roundInfo" class="panel round-info"></div>
+        <div id="quizCards" class="quiz-grid session-grid"></div>
+      </section>
+
+      <section id="reloadView" class="panel reload-panel hidden">
+        <h2 id="reloadQuizTitle">Prova selezionata</h2>
+        <p>
+          L'invio della prova selezionata potra essere effettuato dopo aver
+          ricaricato la pagina di accesso operativo.
+        </p>
+        <p>Cliccare il pulsante RICARICA per entrare direttamente nel quiz.</p>
+        <div class="reload-actions">
+          <button id="exitReloadButton" class="nav-button" type="button">ESCI</button>
+          <button id="reloadGateButton" class="nav-button" type="button">RICARICA</button>
+        </div>
+      </section>
+
+      <section id="quizView" class="hidden">
+        <div class="quiz-toolbar">
+          <div>
+            <p class="required-note">* I campi contrassegnati dal simbolo * sono obbligatori.</p>
+            <h2 id="quizTitle">Inserimento Dati</h2>
+          </div>
+          <button id="backToDashboardButton" class="secondary-button" type="button">Torna ai quiz</button>
+        </div>
+
+        <form id="quizForm" class="panel official-form"></form>
+
+        <div class="bottom-actions">
+          <button id="exitQuizButton" class="nav-button" type="button">ESCI</button>
+          <button id="submitQuizButton" class="nav-button disabled" type="button" disabled>AVANTI</button>
+        </div>
+      </section>
+
+      <section id="reviewView" class="hidden">
+        <div class="quiz-toolbar">
+          <div>
+            <p class="required-note">* I campi contrassegnati dal simbolo * sono obbligatori.</p>
+            <h2>Inserimento Dati</h2>
+          </div>
+        </div>
+
+        <div class="panel official-form review-panel">
+          <h3>Riepilogo dati inseriti</h3>
+          <div id="reviewList" class="review-list"></div>
+
+          <div class="review-info">
+            <strong>Informativa: i dati inseriti potrebbero essere oggetto di verifica durante la lavorazione della domanda.</strong>
+            <label>
+              <input id="reviewAccept" type="checkbox" />
+              Accetto *
+            </label>
+          </div>
+
+          <p class="review-help">
+            Cliccare sul pulsante Modifica per modificare i dati inseriti.<br />
+            Cliccare sul pulsante Invia per confermare i dati inseriti e inviare la domanda.
+          </p>
+        </div>
+
+        <div class="bottom-actions review-actions">
+          <button id="exitReviewButton" class="nav-button" type="button">ESCI</button>
+          <div class="right-actions">
+            <button id="modifyReviewButton" class="nav-button" type="button">MODIFICA</button>
+            <button id="sendReviewButton" class="nav-button disabled" type="button" disabled>INVIA</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="adminView" class="hidden">
+        <div class="dashboard-head">
+          <div>
+            <p class="system-label">Pannello generale</p>
+            <h2>Controllo sessione click day</h2>
+          </div>
+          <div class="admin-actions">
+            <button id="newRoundButton" class="primary-button" type="button">Riavvia quiz</button>
+            <button id="resetStatsButton" class="secondary-button" type="button">Azzera storico</button>
+          </div>
+        </div>
+
+        <div id="adminSummary" class="summary-grid"></div>
+
+        <div class="panel clicker-panel">
+          <div class="clicker-panel-head">
+            <div>
+              <h3>Risultati per cliccatore</h3>
+              <p id="selectedClickerSummary">Seleziona un partecipante per vedere solo i suoi risultati.</p>
+            </div>
+          </div>
+          <div id="clickerButtons" class="clicker-buttons"></div>
+        </div>
+
+        <div class="panel table-panel">
+          <h3 id="attemptTableTitle">Registro prove</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Utente</th>
+                  <th>Giro</th>
+                  <th>Quiz</th>
+                  <th>Punteggio</th>
+                  <th>Tempo</th>
+                  <th>Data</th>
+                </tr>
+              </thead>
+              <tbody id="attemptTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-card">
+        <h2 id="modalTitle">Risultato prova</h2>
+        <p id="modalText"></p>
+        <div class="modal-actions">
+          <button id="reviewButton" class="secondary-button" type="button">Rivedi</button>
+          <button id="closeModalButton" class="primary-button" type="button">Continua</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
