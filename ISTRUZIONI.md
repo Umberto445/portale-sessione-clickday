@@ -15,7 +15,9 @@ Funziona cosi:
 Credenziali principali:
 
 - Admin: `admin` / `admin123`
-- Partecipanti: stesso username del portale precedente / `prova123`
+- Partecipanti: username nel formato nome.cognome / `prova123`
+- Riccardo Aiello e stato sostituito da `elia.bonetti`
+- Leonardo Aganetti e stato sostituito da `pietro.pioli`
 
 Per pubblicarlo su Render usa un Web Service Node, non Static Site.
 Su Render serve un disco persistente montato su:

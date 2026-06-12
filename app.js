@@ -221,13 +221,145 @@ const questionFactories = [
   (ctx, id) => select(id, "Selezionare il valore identico a “ore 15:00”.", ["ore 15:00", "Ore 15:00", "ore 3:00", "15 ore"], "ore 15:00"),
 ];
 
+const creativeQuestionGroups = [
+  [
+    (ctx, id) => {
+      const code = `PR-${letters(ctx.rng, 2)}-${numberBetween(ctx.rng, 100, 999)}`;
+      return exactText(id, `Copia esattamente il codice tra parentesi: (${code}).`, code);
+    },
+    (ctx, id) => {
+      const value = `INVIO-${numberBetween(ctx.rng, 40, 99)}-OK`;
+      return text(id, `Scrivi solo la parte finale dopo l'ultimo trattino nella stringa ${value}.`, "OK");
+    },
+    (ctx, id) => {
+      const word = pick(ctx.rng, ["lampada", "registro", "modifica", "conferma"]);
+      return exactText(id, `Scrivi esattamente la parola tra virgolette: “${word}”.`, word);
+    },
+    (ctx, id) => {
+      const value = `${letters(ctx.rng, 2)}${numberBetween(ctx.rng, 10, 99)}${letters(ctx.rng, 2)}`;
+      const answer = value.replace(/[0-9]/g, "");
+      return exactText(id, `Scrivi solo le lettere della stringa ${value}, senza numeri: ${answer}.`, answer);
+    },
+  ],
+  [
+    (ctx, id) => {
+      const first = numberBetween(ctx.rng, 4, 12);
+      const second = numberBetween(ctx.rng, 5, 15);
+      const answer = String(first + second);
+      return radio(id, `Se ${first}+${second}=${answer}, quale numero devi selezionare?`, optionSet(ctx.rng, answer, [String(first + second + 1), String(first + second - 2), `${first}${second}`]), answer);
+    },
+    (ctx, id) => {
+      const start = numberBetween(ctx.rng, 14, 22);
+      const minus = numberBetween(ctx.rng, 2, 5);
+      const answer = String(start - minus);
+      return select(id, `Se ${start}-${minus}=${answer}, seleziona il risultato corretto.`, optionSet(ctx.rng, answer, [String(start + minus), String(start - minus + 1), String(minus)]), answer);
+    },
+    (ctx, id) => {
+      const hour = numberBetween(ctx.rng, 8, 15);
+      const add = numberBetween(ctx.rng, 1, 4);
+      const answer = `${String(hour + add).padStart(2, "0")}:30`;
+      return select(id, `Se ora sono le ${String(hour).padStart(2, "0")}:30, tra ${add} ore saranno le ${answer}.`, optionSet(ctx.rng, answer, [`${String(hour + add - 1).padStart(2, "0")}:30`, `${String(hour + add + 1).padStart(2, "0")}:30`, `${String(add).padStart(2, "0")}:30`]), answer);
+    },
+    (ctx, id) => {
+      const first = numberBetween(ctx.rng, 2, 7);
+      const second = numberBetween(ctx.rng, 2, 7);
+      const answer = String(first * second);
+      return radio(id, `Il testo dice che ${first}x${second}=${answer}. Quale valore scegli?`, optionSet(ctx.rng, answer, [String(first + second), String(first * second + 1), String(first * second + first)]), answer);
+    },
+  ],
+  [
+    (ctx, id) => radio(id, "La frase dice: seleziona la parola NO. Quale parola devi selezionare?", ["SI", "NO", "FORSE", "OK"], "NO"),
+    (ctx, id) => radio(id, "Non selezionare rosso: seleziona verde. Quale colore scegli?", ["rosso", "verde", "blu", "nero"], "verde"),
+    (ctx, id) => radio(id, "Di che colore era il cavallo bianco di Napoleone?", ["nero", "bianco", "marrone", "grigio"], "bianco"),
+    (ctx, id) => {
+      const answer = pick(ctx.rng, ["seconda", "terza", "quarta"]);
+      return radio(id, `La risposta corretta e scritta qui: ${answer}.`, ["prima", "seconda", "terza", "quarta"].filter((item, index, list) => list.indexOf(item) === index), answer);
+    },
+  ],
+  [
+    (ctx, id) => {
+      const answer = pick(ctx.rng, ["D", "E", "F"]);
+      const sequences = { D: "A B C _", E: "B C D _", F: "C D E _" };
+      return radio(id, `Completa la sequenza ${sequences[answer]}.`, optionSet(ctx.rng, answer, ["A", "B", "C", "G"]), answer);
+    },
+    (ctx, id) => {
+      const start = numberBetween(ctx.rng, 2, 8);
+      const answer = String(start + 6);
+      return radio(id, `Completa la sequenza ${start}, ${start + 2}, ${start + 4}, __.`, optionSet(ctx.rng, answer, [String(start + 5), String(start + 8), String(start + 4)]), answer);
+    },
+    (ctx, id) => {
+      const word = pick(ctx.rng, ["PORTALE", "SESSIONE", "DOMANDA"]);
+      const answer = `${word[0]}${word[word.length - 1]}`;
+      return exactText(id, `Scrivi prima e ultima lettera della parola ${word}: ${answer}.`, answer);
+    },
+    (ctx, id) => {
+      const value = `A-${numberBetween(ctx.rng, 10, 99)}-B-${numberBetween(ctx.rng, 10, 99)}`;
+      const parts = value.split("-");
+      return text(id, `Scrivi il terzo elemento della sequenza ${value}.`, parts[2]);
+    },
+  ],
+  [
+    (ctx, id) => {
+      const symbol = pick(ctx.rng, ["@", "#", "+", "-"]);
+      const distractors = ["@", "#", "+", "-", "§"].filter((item) => item !== symbol).slice(0, 3);
+      return radio(id, `Selezionare il simbolo indicato tra parentesi: (${symbol}).`, optionSet(ctx.rng, symbol, distractors), symbol);
+    },
+    (ctx, id) => checkbox(id, "Seleziona solo i caratteri che compaiono nella stringa Q/7@K.", ["/", "@", "#", "_"], ["/", "@"]),
+    (ctx, id) => {
+      const key = pick(ctx.rng, ["TAB", "INVIO", "F5", "ESC"]);
+      return exactText(id, `Scrivi il tasto indicato nella domanda: ${key}.`, key);
+    },
+    (ctx, id) => select(id, "Selezionare il simbolo usato per indicare un campo obbligatorio: *", ["#", "*", "@", "+"], "*"),
+  ],
+  [
+    (ctx, id) => select(id, "Per entrare nel quiz dopo la schermata di attesa, quale pulsante va cliccato?", ["ESCI", "RICARICA", "ANNULLA", "SALVA"], "RICARICA"),
+    (ctx, id) => radio(id, "Per confermare il riepilogo, quale pulsante e indicato dal portale?", ["MODIFICA", "INVIA", "ESCI", "INDIETRO"], "INVIA"),
+    (ctx, id) => select(id, "Se devi correggere i dati dal riepilogo, quale pulsante scegli?", ["INVIA", "MODIFICA", "RICARICA", "PROVA"], "MODIFICA"),
+    (ctx, id) => radio(id, "La domanda dice di spuntare Non sono un robot. Quale casella selezioni?", ["Non sono un robot", "Sono un robot", "Newsletter", "Esci"], "Non sono un robot"),
+  ],
+  [
+    (ctx, id) => checkbox(id, "Seleziona solo i numeri pari.", ["2", "5", "8", "11"], ["2", "8"]),
+    (ctx, id) => checkbox(id, "Seleziona solo le parole scritte tutte in maiuscolo.", ["DATI", "porta", "INVIO", "Quiz"], ["DATI", "INVIO"]),
+    (ctx, id) => checkbox(id, "Seleziona le due parole che contengono la lettera R.", ["Riga", "Tavolo", "Portale", "Sole"], ["Riga", "Portale"]),
+    (ctx, id) => checkbox(id, "Seleziona solo le opzioni che terminano con 7.", ["A17", "B18", "C27", "D30"], ["A17", "C27"]),
+  ],
+  [
+    (ctx, id) => {
+      const code = `AZ-${numberBetween(ctx.rng, 200, 999)}-${letters(ctx.rng, 2)}`;
+      return exactText(id, `Informazione aziendale di esercizio: codice pratica ${code}. Copialo esattamente.`, code);
+    },
+    (ctx, id) => select(id, "Informazione aziendale di esercizio: referente indicato = Ufficio Gare.", ["Ufficio Gare", "Magazzino", "Reception", "Assistenza"], "Ufficio Gare"),
+    (ctx, id) => radio(id, "Informazione aziendale di esercizio: reparto indicato = Amministrazione.", ["Tecnico", "Amministrazione", "Vendite", "Logistica"], "Amministrazione"),
+    (ctx, id) => {
+      const value = `CLI-${numberBetween(ctx.rng, 5000, 8999)}`;
+      return text(id, `Informazione aziendale di esercizio: scrivi solo le quattro cifre del codice cliente ${value}.`, value.replace("CLI-", ""));
+    },
+  ],
+  [
+    (ctx, id) => radio(id, "Nel testo “Mario apre il portale e clicca RICARICA”, quale parola e scritta in maiuscolo?", ["Mario", "portale", "RICARICA", "clicca"], "RICARICA"),
+    (ctx, id) => select(id, "Nel testo “prima controlla, poi invia”, quale parola viene dopo “poi”?", ["prima", "controlla", "invia", "poi"], "invia"),
+    (ctx, id) => text(id, "Nel testo “codice: ZETA”, scrivi la parola dopo i due punti.", "ZETA"),
+    (ctx, id) => radio(id, "Nel testo “uno due tre”, qual e la seconda parola?", ["uno", "due", "tre", "testo"], "due"),
+  ],
+  [
+    (ctx, id) => exactText(id, "Scrivi il valore rispettando maiuscole e minuscole: Roma2026.", "Roma2026"),
+    (ctx, id) => select(id, "Selezionare la voce identica a “ore 15:00”.", ["ore 15:00", "Ore 15:00", "ore 3:00", "15 ore"], "ore 15:00"),
+    (ctx, id) => {
+      const value = `Q R ${numberBetween(ctx.rng, 10, 99)}`;
+      return select(id, `Selezionare il codice senza spazi: ${value}.`, [value.replaceAll(" ", ""), value, value.replaceAll(" ", "-"), value.split(" ").reverse().join("")], value.replaceAll(" ", ""));
+    },
+    (ctx, id) => exactText(id, "Scrivi solo la parola finale della stringa CLICK-DAY-Fine: Fine.", "Fine"),
+  ],
+];
+
 function buildRoundQuizzes(round) {
   return [1, 2, 3].map((slot) => {
     const rng = createRng(`${round.seed}-${round.number}-${slot}`);
-    const order = shuffle(rng, questionFactories.map((_, index) => index));
-    const questions = order.slice(0, 10).map((factoryIndex, index) => {
+    const groups = shuffle(rng, creativeQuestionGroups).slice(0, 10);
+    const questions = groups.map((group, index) => {
       const id = `r${round.number}-q${slot}-${index + 1}`;
-      return questionFactories[factoryIndex]({ rng, slot, round }, id);
+      const factory = pick(rng, group);
+      return factory({ rng, slot, round }, id);
     });
 
     return {
@@ -249,11 +381,11 @@ const adminParticipants = [
   { username: "giuseppe.defrancesco", name: "Giuseppe de Francesco" },
   { username: "lorenzo.giannotti", name: "Lorenzo Giannotti" },
   { username: "lorenzo1", name: "Lorenzo 1" },
-  { username: "riccardo.aiello", name: "Riccardo Aiello" },
+  { username: "elia.bonetti", name: "Elia Bonetti" },
   { username: "riccardo.giannelli", name: "Riccardo Giannelli" },
   { username: "angel.toninelli", name: "Angel Toninelli" },
   { username: "pietro.dalla", name: "Pietro Dalla" },
-  { username: "leonardo.aganetti", name: "Leonardo Aganetti" },
+  { username: "pietro.pioli", name: "Pietro Pioli" },
 ];
 
 const views = {

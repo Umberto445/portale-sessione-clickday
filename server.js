@@ -19,11 +19,11 @@ const defaultUsers = [
   { username: "giuseppe.defrancesco", password: "prova123", name: "Giuseppe de Francesco", role: "user" },
   { username: "lorenzo.giannotti", password: "prova123", name: "Lorenzo Giannotti", role: "user" },
   { username: "lorenzo1", password: "prova123", name: "Lorenzo 1", role: "user" },
-  { username: "riccardo.aiello", password: "prova123", name: "Riccardo Aiello", role: "user" },
+  { username: "elia.bonetti", password: "prova123", name: "Elia Bonetti", role: "user" },
   { username: "riccardo.giannelli", password: "prova123", name: "Riccardo Giannelli", role: "user" },
   { username: "angel.toninelli", password: "prova123", name: "Angel Toninelli", role: "user" },
   { username: "pietro.dalla", password: "prova123", name: "Pietro Dalla", role: "user" },
-  { username: "leonardo.aganetti", password: "prova123", name: "Leonardo Aganetti", role: "user" },
+  { username: "pietro.pioli", password: "prova123", name: "Pietro Pioli", role: "user" },
 ];
 
 const mimeTypes = {
@@ -35,7 +35,7 @@ const mimeTypes = {
 
 async function ensureData() {
   await fs.mkdir(dataDir, { recursive: true });
-  await ensureJson(usersFile, defaultUsers);
+  await writeJson(usersFile, defaultUsers);
   await ensureJson(attemptsFile, []);
   await ensureJson(roundFile, createRound(1));
 }
