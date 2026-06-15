@@ -24,6 +24,7 @@ const defaultUsers = [
   { username: "angel.toninelli", password: "prova123", name: "Angel Toninelli", role: "user" },
   { username: "pietro.dalla", password: "prova123", name: "Pietro Dalla", role: "user" },
   { username: "pietro.pioli", password: "prova123", name: "Pietro Pioli", role: "user" },
+  { username: "raffaele.marotta", password: "prova123", name: "Raffaele Marotta", role: "user" },
 ];
 
 const mimeTypes = {
@@ -91,7 +92,8 @@ async function handleApi(request, response) {
   if (request.url === "/api/login" && request.method === "POST") {
     const body = await readBody(request);
     const users = await readJson(usersFile);
-    const user = users.find((item) => item.username === body.username && item.password === body.password);
+    const typedUsername = String(body.username || "").trim().toLowerCase();
+    const user = users.find((item) => item.username.toLowerCase() === typedUsername && item.password === body.password);
     if (!user) {
       sendJson(response, 401, { error: "Credenziali non valide" });
       return;

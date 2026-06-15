@@ -424,6 +424,7 @@ const adminParticipants = [
   { username: "angel.toninelli", name: "Angel Toninelli" },
   { username: "pietro.dalla", name: "Pietro Dalla" },
   { username: "pietro.pioli", name: "Pietro Pioli" },
+  { username: "raffaele.marotta", name: "Raffaele Marotta" },
 ];
 
 const views = {
