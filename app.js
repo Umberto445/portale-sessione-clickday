@@ -5,9 +5,6 @@ const api = {
   async getRound() {
     return request("/api/round");
   },
-  async restartRound() {
-    return request("/api/round/restart", { method: "POST" });
-  },
   async saveAttempt(payload) {
     return request("/api/attempts", { method: "POST", body: payload });
   },
@@ -352,24 +349,65 @@ const creativeQuestionGroups = [
   ],
 ];
 
-function buildRoundQuizzes(round) {
-  return [1, 2, 3].map((slot) => {
-    const rng = createRng(`${round.seed}-${round.number}-${slot}`);
-    const groups = shuffle(rng, creativeQuestionGroups).slice(0, 10);
-    const questions = groups.map((group, index) => {
-      const id = `r${round.number}-q${slot}-${index + 1}`;
-      const factory = pick(rng, group);
-      return factory({ rng, slot, round }, id);
-    });
+const fixedQuizzes = [
+  {
+    id: "sessione-fissa-quiz-1",
+    slot: 1,
+    title: "Quiz 1",
+    description: "Logica su sequenze, parole e codici",
+    questions: [
+      radio("quiz1-1", "Selezionare la seconda lettera della parola “Finanziamento”.", ["F", "i", "n", "a"], "i"),
+      radio("quiz1-2", "Selezionare il numero che si ottiene contando le vocali nella parola “Domanda”.", ["2", "3", "4", "6"], "3"),
+      exactText("quiz1-3", "Scrivere il codice “AB 47 CD” senza considerare gli spazi.", "AB47CD"),
+      radio("quiz1-4", "Selezionare il risultato dell'operazione: 14 + 6 - 3.", ["15", "17", "20", "23"], "17"),
+      radio("quiz1-5", "Selezionare la parola scritta interamente in maiuscolo.", ["portale", "Domanda", "INAIL", "utente"], "INAIL"),
+      select("quiz1-6", "Selezionare il terzo elemento della sequenza: rosso - bianco - verde - blu.", ["rosso", "bianco", "verde", "blu"], "verde"),
+      exactText("quiz1-7", "Scrivere i primi cinque caratteri del codice “M9K2P7X4”.", "M9K2P"),
+      radio("quiz1-8", "Selezionare il numero pari tra i seguenti valori.", ["37", "51", "64", "79"], "64"),
+      checkbox("quiz1-9", "Dichiarazione di presa visione delle regole tecniche.", ["Dichiarazione di presa visione delle regole tecniche"], ["Dichiarazione di presa visione delle regole tecniche"]),
+      checkbox("quiz1-10", "Non sono un robot.", ["Non sono un robot"], ["Non sono un robot"]),
+    ],
+  },
+  {
+    id: "sessione-fissa-quiz-2",
+    slot: 2,
+    title: "Quiz 2",
+    description: "Logica su ordine, simboli e trasformazioni",
+    questions: [
+      radio("quiz2-1", "Selezionare il simbolo presente alla fine del codice “R82K!”.", ["R", "K", "!", "82"], "!"),
+      radio("quiz2-2", "Selezionare il numero ottenuto invertendo le cifre di 407.", ["470", "704", "074", "407"], "704"),
+      exactText("quiz2-3", "Scrivere la parola “Accesso Riservato” eliminando gli spazi.", "AccessoRiservato"),
+      select("quiz2-4", "Selezionare il risultato dell'operazione: 90 diviso 3.", ["20", "30", "60", "93"], "30"),
+      radio("quiz2-5", "Selezionare la prima cifra diversa da zero nel numero 004850.", ["0", "4", "8", "5"], "4"),
+      select("quiz2-6", "Selezionare la combinazione corretta delle prime tre lettere della parola “Partecipazione”.", ["Par", "par", "Pat", "Parte"], "Par"),
+      radio("quiz2-7", "Selezionare l'unico valore scritto correttamente in formato euro.", ["1500,00 euro", "euro 1500", "1.500,00 euro", "1,500.00 euro"], "1.500,00 euro"),
+      exactText("quiz2-8", "Scrivere il codice “X-25-Z” senza considerare i trattini.", "X25Z"),
+      checkbox("quiz2-9", "Dichiarazione di presa visione delle regole tecniche.", ["Dichiarazione di presa visione delle regole tecniche"], ["Dichiarazione di presa visione delle regole tecniche"]),
+      checkbox("quiz2-10", "Non sono un robot.", ["Non sono un robot"], ["Non sono un robot"]),
+    ],
+  },
+  {
+    id: "sessione-fissa-quiz-3",
+    slot: 3,
+    title: "Quiz 3",
+    description: "Logica su confronto, conteggio e riconoscimento",
+    questions: [
+      radio("quiz3-1", "Selezionare il numero maggiore tra i seguenti.", ["128", "812", "281", "182"], "812"),
+      select("quiz3-2", "Selezionare il numero di lettere della parola “Utente”.", ["5", "6", "7", "8"], "6"),
+      exactText("quiz3-3", "Scrivere solo le lettere presenti nel codice “A7B9C2”, ignorando i numeri.", "ABC"),
+      radio("quiz3-4", "Selezionare il risultato dell'operazione: 45 - 18.", ["26", "27", "28", "63"], "27"),
+      radio("quiz3-5", "Selezionare il carattere centrale del codice “P4L”.", ["P", "4", "L", "PL"], "4"),
+      select("quiz3-6", "Selezionare la parola che viene prima in ordine alfabetico.", ["Sistema", "Portale", "Bando", "Utente"], "Bando"),
+      exactText("quiz3-7", "Scrivere il testo “Conferma Finale” tutto in minuscolo e senza spazi.", "confermafinale"),
+      radio("quiz3-8", "Selezionare il risultato della somma delle cifre del numero 3412.", ["8", "9", "10", "12"], "10"),
+      checkbox("quiz3-9", "Dichiarazione di presa visione delle regole tecniche.", ["Dichiarazione di presa visione delle regole tecniche"], ["Dichiarazione di presa visione delle regole tecniche"]),
+      checkbox("quiz3-10", "Non sono un robot.", ["Non sono un robot"], ["Non sono un robot"]),
+    ],
+  },
+];
 
-    return {
-      id: `round-${round.number}-quiz-${slot}`,
-      slot,
-      title: `Quiz ${slot}`,
-      description: `Prova ${slot} del giro ${round.number}`,
-      questions,
-    };
-  });
+function buildRoundQuizzes() {
+  return fixedQuizzes;
 }
 
 const adminParticipants = [
@@ -423,7 +461,6 @@ const clickerButtons = document.querySelector("#clickerButtons");
 const selectedClickerSummary = document.querySelector("#selectedClickerSummary");
 const attemptTable = document.querySelector("#attemptTable");
 const attemptTableTitle = document.querySelector("#attemptTableTitle");
-const newRoundButton = document.querySelector("#newRoundButton");
 const resetStatsButton = document.querySelector("#resetStatsButton");
 const modal = document.querySelector("#modal");
 const modalText = document.querySelector("#modalText");
@@ -503,10 +540,10 @@ async function renderDashboard() {
   const completed = completedSlots();
   const completedCount = completed.size;
   const allDone = completedCount >= 3;
-  userStats.textContent = `Giro ${currentRound.number}: ${completedCount}/3 prove completate`;
+  userStats.textContent = `${completedCount}/3 prove completate`;
   roundInfo.innerHTML = `
     <div>
-      <strong>Giro attuale ${currentRound.number}</strong>
+      <strong>Sessione prova generale</strong>
       <span>${allDone ? "Hai completato tutte le prove disponibili." : "Completa Quiz 1, Quiz 2 e Quiz 3."}</span>
     </div>
   `;
@@ -533,7 +570,7 @@ async function renderDashboard() {
     block.className = "panel blocked-panel";
     block.innerHTML = `
       <h3>Sessione completata</h3>
-      <p>Hai gia fatto le 3 prove del giro attuale. Potrai ripartire quando l'amministratore premera Riavvia quiz.</p>
+      <p>Hai gia fatto le 3 prove disponibili. Il tentativo e stato registrato nel pannello amministratore.</p>
     `;
     quizCards.append(block);
   }
@@ -561,7 +598,7 @@ function openSelectedQuiz() {
   currentAnswers = {};
   currentWrongQuestions = [];
   quizStartedAt = Date.now();
-  quizTitle.textContent = `${currentQuiz.title} - Giro ${currentRound.number}`;
+  quizTitle.textContent = currentQuiz.title;
   setTitle("Inserimento dati");
   renderQuizForm();
   showView("quiz");
@@ -745,7 +782,7 @@ async function submitQuiz() {
     return;
   }
 
-  modalText.textContent = `Hai completato ${currentQuiz.title} del giro ${currentRound.number}: ${correct} risposte corrette su ${total} in ${formatDuration(durationSeconds)}. Il tentativo e stato registrato nel pannello admin.`;
+  modalText.textContent = `Hai completato ${currentQuiz.title}: ${correct} risposte corrette su ${total} in ${formatDuration(durationSeconds)}. Il tentativo e stato registrato nel pannello admin.`;
   modal.classList.remove("hidden");
 }
 
@@ -754,7 +791,7 @@ function renderAttemptRows(attempts) {
     ? attempts.map((attempt) => `
         <tr>
           <td>${attempt.userName || attempt.username}</td>
-          <td>${attempt.roundNumber || "-"}</td>
+          <td>Fissa</td>
           <td>${attempt.quizTitle}</td>
           <td>${attempt.correct}/${attempt.total} (${attempt.score}%)</td>
           <td>${formatDuration(attempt.durationSeconds)}</td>
@@ -775,10 +812,10 @@ async function renderAdmin() {
   const completedUsers = adminParticipants.filter((user) => completedSlots(user.username).size >= 3).length;
 
   adminSummary.innerHTML = `
-    <article class="summary-card"><strong>${currentRound.number}</strong><span>Giro attuale</span></article>
-    <article class="summary-card"><strong>${current.length}</strong><span>Prove inviate nel giro</span></article>
+    <article class="summary-card"><strong>3</strong><span>Quiz fissi disponibili</span></article>
+    <article class="summary-card"><strong>${current.length}</strong><span>Prove inviate</span></article>
     <article class="summary-card"><strong>${completedUsers}/${adminParticipants.length}</strong><span>Utenti con 3/3</span></article>
-    <article class="summary-card"><strong>${formatDuration(averageSeconds)}</strong><span>Tempo medio giro</span></article>
+    <article class="summary-card"><strong>${formatDuration(averageSeconds)}</strong><span>Tempo medio sessione</span></article>
   `;
 
   renderClickerButtons();
@@ -803,7 +840,7 @@ function renderClickerButtons() {
     button.classList.toggle("active", selectedAdminUser === user.username);
     button.innerHTML = `
       <strong>${user.name}</strong>
-      <span>${user.username === "all" ? `${currentCount} prove nel giro` : `${currentCount}/3 giro attuale`}</span>
+      <span>${user.username === "all" ? `${currentCount} prove inviate` : `${currentCount}/3 completate`}</span>
       <span>${visible.length} storico</span>
     `;
     button.addEventListener("click", () => {
@@ -826,7 +863,7 @@ function renderAdminTable() {
 
   attemptTableTitle.textContent = selected ? `Registro prove di ${selected.name}` : "Registro prove generale";
   selectedClickerSummary.textContent = selected
-    ? `${selected.name}: ${completedSlots(selected.username).size}/3 nel giro attuale, ${visibleAttempts.length} prove totali, tempo medio ${formatDuration(averageSeconds)}.`
+    ? `${selected.name}: ${completedSlots(selected.username).size}/3 completate, ${visibleAttempts.length} prove totali, tempo medio ${formatDuration(averageSeconds)}.`
     : `Tutti i partecipanti: ${visibleAttempts.length} prove registrate nello storico.`;
   attemptTable.innerHTML = renderAttemptRows(visibleAttempts);
 }
@@ -904,14 +941,6 @@ logoutButton.addEventListener("click", () => {
   currentAnswers = {};
   setTitle("Convalida e invio della prova");
   showView("login");
-});
-
-newRoundButton.addEventListener("click", async () => {
-  const confirmed = window.confirm("Vuoi creare un nuovo giro da 3 quiz? Lo storico dei tentativi restera salvato.");
-  if (!confirmed) return;
-  await api.restartRound();
-  selectedAdminUser = "all";
-  await renderAdmin();
 });
 
 resetStatsButton.addEventListener("click", async () => {

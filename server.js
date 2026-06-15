@@ -112,10 +112,7 @@ async function handleApi(request, response) {
   }
 
   if (request.url === "/api/round/restart" && request.method === "POST") {
-    const currentRound = await readJson(roundFile);
-    const nextRound = createRound((Number(currentRound.number) || 0) + 1);
-    await writeJson(roundFile, nextRound);
-    sendJson(response, 201, nextRound);
+    sendJson(response, 200, await readJson(roundFile));
     return;
   }
 
@@ -130,7 +127,7 @@ async function handleApi(request, response) {
     const round = await readJson(roundFile);
     const quizSlot = Number(body.quizSlot);
     if (body.roundId && body.roundId !== round.id) {
-      sendJson(response, 409, { error: "Il giro e cambiato: rientra nella prova generale" });
+      sendJson(response, 409, { error: "La sessione e cambiata: rientra nella prova generale" });
       return;
     }
     const alreadyDone = attempts.some((attempt) =>
@@ -140,7 +137,7 @@ async function handleApi(request, response) {
     );
 
     if (alreadyDone) {
-      sendJson(response, 409, { error: "Questa prova e gia stata completata nel giro attuale" });
+      sendJson(response, 409, { error: "Questa prova e gia stata completata nella sessione attuale" });
       return;
     }
 
