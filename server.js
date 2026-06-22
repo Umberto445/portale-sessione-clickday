@@ -135,7 +135,7 @@ async function handleApi(request, response) {
     const alreadyDone = attempts.some((attempt) =>
       attempt.username === body.username &&
       attempt.roundId === round.id &&
-      Number(attempt.quizSlot) === quizSlot
+      attempt.quizId === body.quizId
     );
 
     if (alreadyDone) {
