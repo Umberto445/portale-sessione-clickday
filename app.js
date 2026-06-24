@@ -48,7 +48,8 @@ function exactText(id, label, answer) {
 }
 
 const TOTAL_QUIZZES = 51;
-const CURRENT_QUIZ_PREFIX = "clickday-51-facile-";
+const CURRENT_QUIZ_PREFIX = "clickday-51-20260624-";
+const PRESERVED_QUIZ_SLOT = 1;
 
 function seededShuffle(seed, items) {
   const copy = [...items];
@@ -77,215 +78,32 @@ function sumDigits(value) {
   return String(value).split("").reduce((total, digit) => total + Number(digit), 0);
 }
 
-function countVowels(word) {
-  return String(word).toLowerCase().split("").filter((letter) => "aeiou".includes(letter)).length;
+function countLetters(value) {
+  return String(value).replace(/[^A-Za-zÀ-ÿ]/g, "").length;
 }
 
-const simpleWords = [
-  "Portale", "Bando", "Domanda", "Codice", "Modulo", "Pratica", "Scheda", "Importo", "Accesso", "Verifica",
-  "Conferma", "Registro", "Utente", "Risultato", "Sezione", "Pagina", "Valore", "Archivio", "Invio", "Casella",
-  "Opzione", "Riepilogo", "Campo", "Sequenza", "Simbolo", "Numero", "Lettera", "Controllo", "Dichiarazione", "Pulsante",
+function countVowels(value) {
+  return String(value).toLowerCase().split("").filter((letter) => "aeiouàèéìòù".includes(letter)).length;
+}
+
+function reverse(value) {
+  return String(value).split("").reverse().join("");
+}
+
+const words = [
+  "Sportello", "Domanda", "Allegato", "Protocollo", "Verifica", "Selezione", "Archivio", "Pannello", "Avviso", "Pratica",
+  "Modulo", "Conferma", "Registro", "Pulsante", "Riepilogo", "Simbolo", "Sequenza", "Casella", "Accesso", "Controllo",
+  "Importo", "Risultato", "Parametro", "Finestra", "Opzione", "Risorsa", "Tabella", "Notifica", "Documento", "Scheda",
 ];
 
-const lowerWords = [
-  "portale", "bando", "domanda", "codice", "modulo", "pratica", "scheda", "importo", "accesso", "verifica",
-  "conferma", "registro", "utente", "risultato", "sezione", "pagina", "valore", "archivio", "invio", "casella",
-];
-
-const uppercaseWords = [
-  "DATI", "INVIO", "BANDO", "CODICE", "PORTALE", "ACCESSO", "CAMPO", "REGISTRO", "VALORE", "MODULO",
-  "SCHEDA", "PRATICA", "ESCI", "AVANTI", "RICARICA", "CONFERMA", "UTENTE", "SEZIONE", "OPZIONE", "SIMBOLO",
-];
-
-const colors = ["rosso", "verde", "bianco", "blu", "giallo", "nero", "grigio", "viola", "arancio", "azzurro"];
+const shortWords = ["mela", "dado", "rete", "sole", "luna", "porta", "carta", "linea", "punto", "barra", "quota", "firma"];
+const upperWords = ["INVIO", "DATI", "CODICE", "AVANTI", "RICARICA", "MODULO", "BANDO", "ESCI", "VALORE", "CAMPO", "SCHEDA", "PRATICA", "TOKEN", "REGISTRO"];
+const colors = ["verde", "bianco", "rosso", "blu", "giallo", "nero", "grigio", "arancio", "viola", "azzurro"];
 const symbols = ["@", "#", "+", "-", "/", "*", "!", "?", "_", "%"];
 const numberWords = [
-  ["otto", "8"], ["nove", "9"], ["dieci", "10"], ["undici", "11"], ["dodici", "12"], ["tredici", "13"],
+  ["sette", "7"], ["otto", "8"], ["nove", "9"], ["dieci", "10"], ["undici", "11"], ["dodici", "12"], ["tredici", "13"],
   ["quattordici", "14"], ["quindici", "15"], ["sedici", "16"], ["diciassette", "17"], ["diciotto", "18"], ["diciannove", "19"],
   ["venti", "20"], ["ventuno", "21"], ["ventidue", "22"], ["ventitre", "23"], ["ventiquattro", "24"],
-];
-
-function qLastCharacters(slot, index, id) {
-  const code = "CD" + String(1200 + slot * 17 + index).padStart(4, "0") + "XZ";
-  const answer = code.slice(-3);
-  return exactText(id, "Scrivere gli ultimi tre caratteri del codice " + code + ".", answer);
-}
-
-function qRemoveSpaces(slot, index, id) {
-  const first = itemAt(uppercaseWords, slot, index);
-  const second = String(20 + ((slot + index) % 70));
-  const third = itemAt(uppercaseWords, slot, index + 4);
-  const visible = first + " " + second + " " + third;
-  return exactText(id, "Scrivere il codice " + visible + " senza considerare gli spazi.", first + second + third);
-}
-
-function qArithmetic(slot, index, id) {
-  const first = 8 + ((slot * 2 + index) % 18);
-  const second = 3 + ((slot + index) % 9);
-  const third = 1 + ((slot + index * 2) % 5);
-  const answer = String(first + second - third);
-  return radio(id, "Selezionare il risultato dell'operazione: " + first + " + " + second + " - " + third + ".", uniqueOptions(answer, [Number(answer) + 1, Number(answer) - 1, first + second], slot + index), answer);
-}
-
-function qVowelCount(slot, index, id) {
-  const word = itemAt(simpleWords, slot, index);
-  const answer = String(countVowels(word));
-  return select(id, "Selezionare il numero di vocali presenti nella parola " + word + ".", uniqueOptions(answer, [Number(answer) + 1, Math.max(0, Number(answer) - 1), word.length], slot * 3 + index), answer);
-}
-
-function qLetterPosition(slot, index, id) {
-  const word = itemAt(simpleWords, slot, index + 3);
-  const position = 1 + ((slot + index) % Math.min(5, word.length));
-  const answer = word[position - 1];
-  const distractors = word.split("").filter((letter) => letter !== answer).slice(0, 5);
-  return radio(id, "Selezionare la " + position + " lettera della parola " + word + ".", uniqueOptions(answer, distractors, slot * 5 + index), answer);
-}
-
-function qNumberSequence(slot, index, id) {
-  const start = 2 + ((slot + index) % 8);
-  const step = 2 + ((slot + index) % 3);
-  const answer = String(start + step * 3);
-  return select(id, "Completare la sequenza: " + start + " - " + (start + step) + " - " + (start + step * 2) + " - __.", uniqueOptions(answer, [Number(answer) + step, Number(answer) - 1, start + step], slot * 7 + index), answer);
-}
-
-function qUppercaseWord(slot, index, id) {
-  const answer = itemAt(uppercaseWords, slot, index);
-  const low = itemAt(lowerWords, slot, index + 1);
-  const title = itemAt(simpleWords, slot, index + 2);
-  const mixed = answer[0] + answer.slice(1).toLowerCase();
-  return radio(id, "Selezionare la parola scritta interamente in maiuscolo.", seededShuffle(slot * 11 + index, [low, title, answer, mixed]), answer);
-}
-
-function qSymbolEnd(slot, index, id) {
-  const symbol = itemAt(symbols, slot, index);
-  const code = "R" + (30 + slot) + "K" + symbol;
-  return radio(id, "Selezionare il simbolo presente alla fine del codice " + code + ".", uniqueOptions(symbol, symbols.filter((item) => item !== symbol).slice(0, 5), slot * 13 + index), symbol);
-}
-
-function qWithoutHyphens(slot, index, id) {
-  const code = itemAt(uppercaseWords, slot, index).slice(0, 2) + "-" + (40 + slot + index) + "-" + itemAt(uppercaseWords, slot, index + 5).slice(0, 2);
-  return exactText(id, "Scrivere il codice " + code + " senza considerare i trattini.", code.replaceAll("-", ""));
-}
-
-function qSumDigits(slot, index, id) {
-  const number = 2100 + slot * 31 + index * 7;
-  const answer = String(sumDigits(number));
-  return select(id, "Selezionare la somma delle cifre del numero " + number + ".", uniqueOptions(answer, [Number(answer) + 1, Number(answer) - 1, String(number).slice(0, 2)], slot * 17 + index), answer);
-}
-
-function qEvenNumber(slot, index, id) {
-  const answer = String(40 + ((slot + index) % 20) * 2);
-  const options = [String(Number(answer) - 3), String(Number(answer) + 5), answer, String(Number(answer) + 9)];
-  return radio(id, "Selezionare il numero pari tra i seguenti valori.", seededShuffle(slot * 19 + index, options), answer);
-}
-
-function qDatePiece(slot, index, id) {
-  const day = String(1 + ((slot + index) % 28)).padStart(2, "0");
-  const month = String(1 + ((slot * 2 + index) % 12)).padStart(2, "0");
-  const year = String(2026 + ((slot + index) % 3));
-  const date = day + "/" + month + "/" + year;
-  const mode = (slot + index) % 3;
-  if (mode === 0) return select(id, "Selezionare il giorno della data " + date + ".", uniqueOptions(day, [month, year, String(Number(day) + 1).padStart(2, "0")], slot * 23 + index), day);
-  if (mode === 1) return select(id, "Selezionare il mese della data " + date + ".", uniqueOptions(month, [day, year, String(Number(month) + 1).padStart(2, "0")], slot * 23 + index), month);
-  return select(id, "Selezionare l'anno della data " + date + ".", uniqueOptions(year, [day, month, String(Number(year) + 1)], slot * 23 + index), year);
-}
-
-function qPortalButton(slot, index, id) {
-  const cases = [
-    ["Per proseguire dopo aver compilato i campi, quale pulsante bisogna premere?", "AVANTI", ["ESCI", "AVANTI", "ANNULLA", "INDIETRO"]],
-    ["Per confermare i dati nella schermata di riepilogo, quale pulsante bisogna premere?", "INVIA", ["INVIA", "MODIFICA", "ESCI", "RICARICA"]],
-    ["Per cambiare i dati dalla schermata di riepilogo, quale pulsante bisogna premere?", "MODIFICA", ["INVIA", "MODIFICA", "AVANTI", "SALVA"]],
-    ["Per entrare nella prova dalla schermata di attesa, quale pulsante bisogna premere?", "RICARICA", ["ESCI", "RICARICA", "MODIFICA", "INVIA"]],
-  ];
-  const selected = itemAt(cases, slot, index);
-  return radio(id, selected[0], seededShuffle(slot * 29 + index, selected[2]), selected[1]);
-}
-
-function qGreaterOrSmaller(slot, index, id) {
-  const base = 100 + slot * 9 + index;
-  const values = [base, base + 207, base + 42, base + 81].map(String);
-  const answer = String(Math.max(...values.map(Number)));
-  return radio(id, "Selezionare il numero maggiore tra i seguenti.", seededShuffle(slot * 31 + index, values), answer);
-}
-
-function qExtractAfterColon(slot, index, id) {
-  const value = itemAt(uppercaseWords, slot, index).slice(0, 3) + String(70 + slot + index);
-  const full = "RIF:" + value + "/FINE";
-  return exactText(id, "Scrivere solo il testo dopo i due punti e prima dello slash nella stringa " + full + ".", value);
-}
-
-function qSymbolsPresent(slot, index, id) {
-  const first = itemAt(symbols, slot, index);
-  const second = itemAt(symbols, slot, index + 3);
-  const shown = "A" + first + "7" + second + "B";
-  const options = seededShuffle(slot * 37 + index, [first, second, itemAt(symbols, slot, index + 5), itemAt(symbols, slot, index + 7)]);
-  return checkbox(id, "Selezionare solo i simboli presenti nella stringa " + shown + ".", options, [first, second]);
-}
-
-function qUppercaseChoices(slot, index, id) {
-  const first = itemAt(uppercaseWords, slot, index);
-  const second = itemAt(uppercaseWords, slot, index + 6);
-  const options = seededShuffle(slot * 41 + index, [first, itemAt(lowerWords, slot, index), second, itemAt(simpleWords, slot, index + 2)]);
-  return checkbox(id, "Selezionare solo le parole scritte tutte in maiuscolo.", options, [first, second]);
-}
-
-function qNumberWord(slot, index, id) {
-  const selected = itemAt(numberWords, slot, index);
-  return select(id, "Selezionare il numero scritto in lettere: " + selected[0] + ".", uniqueOptions(selected[1], [Number(selected[1]) - 1, Number(selected[1]) + 1, Number(selected[1]) + 2], slot * 43 + index), selected[1]);
-}
-
-function qColorFromText(slot, index, id) {
-  const answer = itemAt(colors, slot, index);
-  return radio(id, "Nella frase 'il colore corretto e " + answer + "', quale colore devi selezionare?", uniqueOptions(answer, colors.filter((item) => item !== answer).slice(0, 6), slot * 47 + index), answer);
-}
-
-function qFirstLastLetters(slot, index, id) {
-  const word = itemAt(uppercaseWords, slot, index + 4);
-  const answer = word[0] + word[word.length - 1];
-  return exactText(id, "Scrivere la prima e l'ultima lettera della parola " + word + ".", answer);
-}
-
-function qReverseDigits(slot, index, id) {
-  const number = String(300 + slot * 6 + index * 3);
-  const answer = number.split("").reverse().join("");
-  return select(id, "Selezionare il numero ottenuto invertendo le cifre di " + number + ".", uniqueOptions(answer, [number, answer.slice(1), number.slice(1)], slot * 53 + index), answer);
-}
-
-function qAlphabeticalFirst(slot, index, id) {
-  const groups = [
-    ["Bando", "Portale", "Utente", "Sistema"],
-    ["Codice", "Domanda", "Modulo", "Valore"],
-    ["Archivio", "Registro", "Scheda", "Verifica"],
-    ["Accesso", "Campo", "Invio", "Sezione"],
-  ];
-  const options = itemAt(groups, slot, index);
-  const answer = [...options].sort((a, b) => a.localeCompare(b, "it"))[0];
-  return select(id, "Selezionare la parola che viene prima in ordine alfabetico.", seededShuffle(slot * 59 + index, options), answer);
-}
-
-const questionBuilders = [
-  qLastCharacters,
-  qRemoveSpaces,
-  qArithmetic,
-  qVowelCount,
-  qLetterPosition,
-  qNumberSequence,
-  qUppercaseWord,
-  qSymbolEnd,
-  qWithoutHyphens,
-  qSumDigits,
-  qEvenNumber,
-  qDatePiece,
-  qPortalButton,
-  qGreaterOrSmaller,
-  qExtractAfterColon,
-  qSymbolsPresent,
-  qUppercaseChoices,
-  qNumberWord,
-  qColorFromText,
-  qFirstLastLetters,
-  qReverseDigits,
-  qAlphabeticalFirst,
 ];
 
 function consentQuestions(slot) {
@@ -295,10 +113,346 @@ function consentQuestions(slot) {
   ];
 }
 
-function createQuiz(slot) {
-  const start = (slot * 3) % questionBuilders.length;
+function createPreservedQuiz() {
+  return {
+    id: CURRENT_QUIZ_PREFIX + "01",
+    slot: 1,
+    title: "Prova 1",
+    description: "Replica della schermata con stanziamento, bandiera e codice identificativo.",
+    questions: [
+      select(
+        "quiz1-1",
+        "Selezionare, con riguardo all'ordine di presentazione nella cifra, la somma delle cifre diverse da zero presenti nello stanziamento di 508.000.000,00 euro (5+8=13).",
+        ["- seleziona opzione -", "8+5=13", "5+8=13", "5+0=5", "5+8=14"].filter((item) => item !== "- seleziona opzione -"),
+        "5+8=13"
+      ),
+      select(
+        "quiz1-2",
+        "Selezionare il numero dei tre colori della bandiera italiana.",
+        ["due", "tre", "quattro", "cinque"],
+        "tre"
+      ),
+      exactText(
+        "quiz1-3",
+        "Scrivere i primi sette caratteri, compreso il segno, del proprio codice identificativo +3b404cb3dcf6fc253b8f9f1f6a9c1b3a18fbcff8200744739c62fff649dd50d6 (+3b404c).",
+        "+3b404c"
+      ),
+      ...consentQuestions(1),
+    ],
+  };
+}
+
+function qCopyBetween(slot, index, id) {
+  const value = itemAt(upperWords, slot, index).slice(0, 3) + "-" + String(40 + slot + index) + "Z";
+  return exactText(id, "Copia esattamente il valore tra parentesi tonde: (" + value + ").", value);
+}
+
+function qFirstChars(slot, index, id) {
+  const code = itemAt(upperWords, slot, index) + String(200 + slot * 3 + index) + itemAt(upperWords, slot, index + 2).slice(0, 2);
+  const count = 4 + ((slot + index) % 3);
+  return exactText(id, "Scrivere i primi " + count + " caratteri del codice " + code + ".", code.slice(0, count));
+}
+
+function qLastChars(slot, index, id) {
+  const code = "K" + String(7000 + slot * 19 + index) + itemAt(upperWords, slot, index).slice(0, 2);
+  const count = 2 + ((slot + index) % 3);
+  return exactText(id, "Scrivere gli ultimi " + count + " caratteri della stringa " + code + ".", code.slice(-count));
+}
+
+function qRemoveSymbol(slot, index, id) {
+  const symbol = itemAt(symbols, slot, index);
+  const code = "A" + symbol + String(10 + slot + index) + symbol + "B";
+  return exactText(id, "Scrivere il codice " + code + " senza considerare il simbolo " + symbol + ".", code.split(symbol).join(""));
+}
+
+function qRemoveSpaces(slot, index, id) {
+  const code = itemAt(upperWords, slot, index).slice(0, 2) + " " + String(30 + slot) + " " + itemAt(upperWords, slot, index + 1).slice(0, 2);
+  return exactText(id, "Scrivere " + code + " senza considerare gli spazi.", code.replaceAll(" ", ""));
+}
+
+function qOnlyDigits(slot, index, id) {
+  const code = "A" + (slot + 2) + "B" + (index + 7) + "C" + ((slot + index) % 10);
+  const answer = code.replace(/\D/g, "");
+  return text(id, "Scrivere solo i numeri presenti nella stringa " + code + ".", answer);
+}
+
+function qOnlyLetters(slot, index, id) {
+  const code = "P" + (slot + 5) + "R" + (index + 2) + "T";
+  return exactText(id, "Scrivere solo le lettere presenti nella stringa " + code + ".", code.replace(/[^A-Z]/g, ""));
+}
+
+function qUppercaseOnly(slot, index, id) {
+  const code = itemAt(upperWords, slot, index)[0] + itemAt(shortWords, slot, index) + itemAt(upperWords, slot, index + 1)[0] + "7";
+  const answer = code.replace(/[^A-Z]/g, "");
+  return exactText(id, "Scrivere solo le lettere maiuscole presenti nella stringa " + code + ".", answer);
+}
+
+function qLowercaseOnly(slot, index, id) {
+  const code = itemAt(upperWords, slot, index)[0] + itemAt(shortWords, slot, index) + "9" + itemAt(upperWords, slot, index + 1)[0];
+  const answer = code.replace(/[^a-z]/g, "");
+  return exactText(id, "Scrivere solo le lettere minuscole presenti nella stringa " + code + ".", answer);
+}
+
+function qArithmetic(slot, index, id) {
+  const first = 12 + ((slot + index) % 18);
+  const second = 4 + ((slot * 2 + index) % 9);
+  const third = 2 + ((slot + index * 3) % 6);
+  const answer = String(first + second - third);
+  return radio(id, "Selezionare il risultato dell'operazione: " + first + " + " + second + " - " + third + ".", uniqueOptions(answer, [Number(answer) + 1, Number(answer) - 1, first + second, first - third], slot * 5 + index), answer);
+}
+
+function qMultiply(slot, index, id) {
+  const first = 2 + ((slot + index) % 6);
+  const second = 2 + ((slot * 2 + index) % 5);
+  const answer = String(first * second);
+  return select(id, "Selezionare il risultato dell'operazione: " + first + " x " + second + ".", uniqueOptions(answer, [first + second, first * second + 1, first * second - 1], slot * 7 + index), answer);
+}
+
+function qDivide(slot, index, id) {
+  const answerNumber = 3 + ((slot + index) % 8);
+  const divisor = 2 + ((slot + index) % 4);
+  const total = answerNumber * divisor;
+  const answer = String(answerNumber);
+  return select(id, "Selezionare il risultato dell'operazione: " + total + " diviso " + divisor + ".", uniqueOptions(answer, [answerNumber + 1, answerNumber - 1, total], slot * 11 + index), answer);
+}
+
+function qSumDigits(slot, index, id) {
+  const number = 3000 + slot * 47 + index * 9;
+  const answer = String(sumDigits(number));
+  return radio(id, "Selezionare la somma delle cifre del numero " + number + ".", uniqueOptions(answer, [Number(answer) + 1, Number(answer) - 1, String(number).slice(0, 2)], slot * 13 + index), answer);
+}
+
+function qReverseNumber(slot, index, id) {
+  const number = String(140 + slot * 7 + index * 4);
+  const answer = reverse(number);
+  return select(id, "Selezionare il numero ottenuto invertendo le cifre di " + number + ".", uniqueOptions(answer, [number, answer.slice(1), number.slice(0, 2)], slot * 17 + index), answer);
+}
+
+function qEvenOdd(slot, index, id) {
+  const answer = String(20 + ((slot + index) % 25) * 2);
+  const options = [answer, String(Number(answer) + 3), String(Number(answer) - 5), String(Number(answer) + 7)];
+  return radio(id, "Selezionare il numero pari tra i seguenti valori.", seededShuffle(slot * 19 + index, options), answer);
+}
+
+function qGreater(slot, index, id) {
+  const base = 90 + slot * 8 + index;
+  const values = [base, base + 30, base + 104, base + 61].map(String);
+  const answer = String(Math.max(...values.map(Number)));
+  return radio(id, "Selezionare il numero maggiore tra i seguenti valori.", seededShuffle(slot * 23 + index, values), answer);
+}
+
+function qSmaller(slot, index, id) {
+  const base = 40 + slot + index;
+  const values = [base + 80, base + 9, base + 35, base + 62].map(String);
+  const answer = String(Math.min(...values.map(Number)));
+  return select(id, "Selezionare il numero minore tra i seguenti valori.", seededShuffle(slot * 29 + index, values), answer);
+}
+
+function qWordLength(slot, index, id) {
+  const word = itemAt(words, slot, index);
+  const answer = String(countLetters(word));
+  return select(id, "Selezionare il numero di lettere della parola " + word + ".", uniqueOptions(answer, [Number(answer) + 1, Number(answer) - 1, Number(answer) + 2], slot * 31 + index), answer);
+}
+
+function qVowelCount(slot, index, id) {
+  const word = itemAt(words, slot, index + 4);
+  const answer = String(countVowels(word));
+  return radio(id, "Selezionare il numero di vocali presenti nella parola " + word + ".", uniqueOptions(answer, [Number(answer) + 1, Math.max(0, Number(answer) - 1), countLetters(word)], slot * 37 + index), answer);
+}
+
+function qLetterPosition(slot, index, id) {
+  const word = itemAt(words, slot, index + 6);
+  const position = 1 + ((slot + index) % Math.min(5, word.length));
+  const answer = word[position - 1];
+  const distractors = word.split("").filter((letter) => letter !== answer).slice(0, 5);
+  return radio(id, "Selezionare la " + position + " lettera della parola " + word + ".", uniqueOptions(answer, distractors, slot * 41 + index), answer);
+}
+
+function qFirstLastLetters(slot, index, id) {
+  const word = itemAt(upperWords, slot, index + 2);
+  const answer = word[0] + word[word.length - 1];
+  return exactText(id, "Scrivere la prima e l'ultima lettera della parola " + word + ".", answer);
+}
+
+function qAlphabetical(slot, index, id) {
+  const groups = [
+    ["Archivio", "Registro", "Scheda", "Verifica"],
+    ["Bando", "Portale", "Utente", "Sistema"],
+    ["Campo", "Domanda", "Modulo", "Valore"],
+    ["Accesso", "Controllo", "Invio", "Sezione"],
+    ["Allegato", "Documento", "Pratica", "Risorsa"],
+  ];
+  const options = itemAt(groups, slot, index);
+  const answer = [...options].sort((a, b) => a.localeCompare(b, "it"))[0];
+  return select(id, "Selezionare la parola che viene prima in ordine alfabetico.", seededShuffle(slot * 43 + index, options), answer);
+}
+
+function qUpperWord(slot, index, id) {
+  const answer = itemAt(upperWords, slot, index);
+  const options = seededShuffle(slot * 47 + index, [answer, answer.toLowerCase(), itemAt(words, slot, index), itemAt(shortWords, slot, index)]);
+  return radio(id, "Selezionare la parola scritta interamente in maiuscolo.", options, answer);
+}
+
+function qColorText(slot, index, id) {
+  const answer = itemAt(colors, slot, index);
+  return radio(id, "Nella frase 'il colore corretto e " + answer + "', quale colore devi selezionare?", uniqueOptions(answer, colors.filter((color) => color !== answer), slot * 53 + index), answer);
+}
+
+function qItalianFlag(slot, index, id) {
+  const answer = "verde-bianco-rosso";
+  return select(id, "Selezionare i colori della bandiera italiana in ordine corretto.", seededShuffle(slot * 59 + index, [answer, "rosso-bianco-verde", "verde-rosso-bianco", "bianco-verde-rosso"]), answer);
+}
+
+function qColorCount(slot, index, id) {
+  return select(id, "Selezionare il numero dei tre colori indicati: verde, bianco, rosso.", ["due", "tre", "quattro", "cinque"], "tre");
+}
+
+function qSymbolEnd(slot, index, id) {
+  const symbol = itemAt(symbols, slot, index);
+  const code = "X" + String(slot + 60) + "Y" + symbol;
+  return radio(id, "Selezionare il simbolo presente alla fine del codice " + code + ".", uniqueOptions(symbol, symbols.filter((item) => item !== symbol), slot * 61 + index), symbol);
+}
+
+function qSymbolsPresent(slot, index, id) {
+  const first = itemAt(symbols, slot, index);
+  const second = itemAt(symbols, slot, index + 4);
+  const third = itemAt(symbols, slot, index + 6);
+  const fourth = itemAt(symbols, slot, index + 8);
+  const shown = "Q" + first + "7" + second + "K";
+  const answer = first + " e " + second;
+  const options = seededShuffle(slot * 67 + index, [answer, first + " e " + third, second + " e " + fourth, third + " e " + fourth]);
+  return select(id, "Selezionare la coppia di simboli presenti nella stringa " + shown + ".", options, answer);
+}
+
+function qUpperChoices(slot, index, id) {
+  const first = itemAt(upperWords, slot, index);
+  const second = itemAt(upperWords, slot, index + 5);
+  const third = itemAt(shortWords, slot, index);
+  const fourth = itemAt(words, slot, index + 2);
+  const answer = first + " e " + second;
+  const options = seededShuffle(slot * 71 + index, [answer, first + " e " + third, second + " e " + fourth, third + " e " + fourth]);
+  return radio(id, "Selezionare la coppia con due parole scritte interamente in maiuscolo.", options, answer);
+}
+
+function qSequenceNumbers(slot, index, id) {
+  const start = 1 + ((slot + index) % 9);
+  const step = 2 + ((slot + index) % 4);
+  const answer = String(start + step * 3);
+  return select(id, "Completare la sequenza: " + start + " - " + (start + step) + " - " + (start + step * 2) + " - __.", uniqueOptions(answer, [Number(answer) + step, Number(answer) - 1, start + step], slot * 73 + index), answer);
+}
+
+function qSequenceLetters(slot, index, id) {
+  const alphabet = "ABCDEFGHILMNOPQRSTUVZ";
+  const pos = (slot + index) % 12;
+  const shown = alphabet[pos] + " - " + alphabet[pos + 1] + " - " + alphabet[pos + 2] + " - __";
+  const answer = alphabet[pos + 3];
+  return radio(id, "Completare la sequenza: " + shown + ".", uniqueOptions(answer, [alphabet[pos + 4], alphabet[pos + 1], alphabet[pos + 5]], slot * 79 + index), answer);
+}
+
+function qTimeAdd(slot, index, id) {
+  const hour = 8 + ((slot + index) % 8);
+  const add = 1 + ((slot + index) % 4);
+  const answer = String(hour + add).padStart(2, "0") + ":00";
+  return select(id, "Se ora sono le " + String(hour).padStart(2, "0") + ":00, tra " + add + " ore che ore saranno?", uniqueOptions(answer, [String(hour + add + 1).padStart(2, "0") + ":00", String(hour + add - 1).padStart(2, "0") + ":00", String(add).padStart(2, "0") + ":00"], slot * 83 + index), answer);
+}
+
+function qDatePart(slot, index, id) {
+  const day = String(1 + ((slot + index) % 28)).padStart(2, "0");
+  const month = String(1 + ((slot * 2 + index) % 12)).padStart(2, "0");
+  const year = String(2026 + ((slot + index) % 4));
+  const date = day + "/" + month + "/" + year;
+  const mode = (slot + index) % 3;
+  if (mode === 0) return select(id, "Selezionare il giorno della data " + date + ".", uniqueOptions(day, [month, year, String(Number(day) + 1).padStart(2, "0")], slot * 89 + index), day);
+  if (mode === 1) return select(id, "Selezionare il mese della data " + date + ".", uniqueOptions(month, [day, year, String(Number(month) + 1).padStart(2, "0")], slot * 89 + index), month);
+  return select(id, "Selezionare l'anno della data " + date + ".", uniqueOptions(year, [day, month, String(Number(year) + 1)], slot * 89 + index), year);
+}
+
+function qButton(slot, index, id) {
+  const cases = [
+    ["Per proseguire dopo aver compilato i campi, quale pulsante bisogna premere?", "AVANTI", ["ESCI", "AVANTI", "MODIFICA", "INDIETRO"]],
+    ["Per confermare i dati nel riepilogo, quale pulsante bisogna premere?", "INVIA", ["INVIA", "ESCI", "RICARICA", "MODIFICA"]],
+    ["Per tornare a correggere i dati dal riepilogo, quale pulsante bisogna premere?", "MODIFICA", ["AVANTI", "MODIFICA", "INVIA", "ANNULLA"]],
+    ["Per entrare nella prova dalla schermata di attesa, quale pulsante bisogna premere?", "RICARICA", ["RICARICA", "ESCI", "INVIA", "MODIFICA"]],
+  ];
+  const selected = itemAt(cases, slot, index);
+  return radio(id, selected[0], seededShuffle(slot * 97 + index, selected[2]), selected[1]);
+}
+
+function qNumberWord(slot, index, id) {
+  const selected = itemAt(numberWords, slot, index);
+  return select(id, "Selezionare il numero scritto in lettere: " + selected[0] + ".", uniqueOptions(selected[1], [Number(selected[1]) - 1, Number(selected[1]) + 1, Number(selected[1]) + 2], slot * 101 + index), selected[1]);
+}
+
+function qBeforeAfter(slot, index, id) {
+  const first = itemAt(words, slot, index);
+  const second = itemAt(words, slot, index + 1);
+  const third = itemAt(words, slot, index + 2);
+  return radio(id, "Nella sequenza " + first + " - " + second + " - " + third + ", quale parola viene dopo " + first + "?", seededShuffle(slot * 103 + index, [first, second, third, itemAt(words, slot, index + 5)]), second);
+}
+
+function qMiddleCharacter(slot, index, id) {
+  const code = itemAt(upperWords, slot, index)[0] + String((slot + index) % 10) + itemAt(upperWords, slot, index + 1)[0];
+  return radio(id, "Selezionare il carattere centrale del codice " + code + ".", uniqueOptions(code[1], [code[0], code[2], code], slot * 107 + index), code[1]);
+}
+
+function qExtractAfterColon(slot, index, id) {
+  const value = itemAt(upperWords, slot, index).slice(0, 3) + String(50 + slot + index);
+  const full = "ID:" + value + "/OK";
+  return exactText(id, "Scrivere solo il testo dopo i due punti e prima dello slash nella stringa " + full + ".", value);
+}
+
+function qExtractBeforeSlash(slot, index, id) {
+  const value = itemAt(upperWords, slot, index).slice(0, 3) + String(80 + slot + index);
+  const full = value + "/FINE";
+  return exactText(id, "Scrivere solo il testo prima dello slash nella stringa " + full + ".", value);
+}
+
+const questionBuilders = [
+  qCopyBetween,
+  qFirstChars,
+  qLastChars,
+  qRemoveSymbol,
+  qRemoveSpaces,
+  qOnlyDigits,
+  qOnlyLetters,
+  qUppercaseOnly,
+  qLowercaseOnly,
+  qArithmetic,
+  qMultiply,
+  qDivide,
+  qSumDigits,
+  qReverseNumber,
+  qEvenOdd,
+  qGreater,
+  qSmaller,
+  qWordLength,
+  qVowelCount,
+  qLetterPosition,
+  qFirstLastLetters,
+  qAlphabetical,
+  qUpperWord,
+  qColorText,
+  qItalianFlag,
+  qColorCount,
+  qSymbolEnd,
+  qSymbolsPresent,
+  qUpperChoices,
+  qSequenceNumbers,
+  qSequenceLetters,
+  qTimeAdd,
+  qDatePart,
+  qButton,
+  qNumberWord,
+  qBeforeAfter,
+  qMiddleCharacter,
+  qExtractAfterColon,
+  qExtractBeforeSlash,
+];
+
+function createGeneratedQuiz(slot) {
+  const start = (slot * 5) % questionBuilders.length;
   const questions = Array.from({ length: 8 }, (_, index) => {
-    const builder = questionBuilders[(start + index * 7) % questionBuilders.length];
+    const builder = questionBuilders[(start + index * 11) % questionBuilders.length];
     return builder(slot, index, "quiz" + slot + "-" + (index + 1));
   });
 
@@ -306,12 +460,15 @@ function createQuiz(slot) {
     id: CURRENT_QUIZ_PREFIX + String(slot).padStart(2, "0"),
     slot,
     title: "Prova " + slot,
-    description: "Logica elementare su codici, parole, numeri e campi del portale.",
+    description: "Logica semplice su codici, parole, numeri, simboli e schermate del portale.",
     questions: [...questions, ...consentQuestions(slot)],
   };
 }
 
-const fixedQuizzes = Array.from({ length: TOTAL_QUIZZES }, (_, index) => createQuiz(index + 1));
+const fixedQuizzes = Array.from({ length: TOTAL_QUIZZES }, (_, index) => {
+  const slot = index + 1;
+  return slot === PRESERVED_QUIZ_SLOT ? createPreservedQuiz() : createGeneratedQuiz(slot);
+});
 
 function buildRoundQuizzes() {
   return fixedQuizzes;
